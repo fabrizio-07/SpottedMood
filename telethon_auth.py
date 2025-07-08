@@ -5,6 +5,9 @@ api_id = int(os.environ.get('API_ID'))
 api_hash = os.environ.get('API_HASH')
 phone_number = os.environ.get('PHONE_NUMBER')  
 
+if not api_id or not api_hash or not phone_number:
+    raise ValueError("API_ID and API_HASH must be set in enviroment variables!")
+
 client = TelegramClient('SpottedMoodBot', api_id, api_hash)
 
 async def main():
