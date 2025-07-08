@@ -3,7 +3,7 @@ __pycache__/
 *.py[codz]
 *$py.class
 
-# Telethon session file
+# Sessions files, i use it for Telethon
 *.session
 
 # C extensions
