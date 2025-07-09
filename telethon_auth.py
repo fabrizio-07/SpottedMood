@@ -1,19 +1,31 @@
 from telethon import TelegramClient
 import os
 
-api_id = int(os.environ.get('API_ID'))
-api_hash = os.environ.get('API_HASH')
-phone_number = os.environ.get('PHONE_NUMBER')  
+api_id = int(os.environ.get("API_ID"))
+api_hash = os.environ.get("API_HASH")
+phone_number = os.environ.get("PHONE_NUMBER")
+username = "SpottedMood"
 
 if not api_id or not api_hash or not phone_number:
-    raise ValueError("API_ID and API_HASH must be set in enviroment variables!")
+    raise ValueError("API_ID, API_HASH e PHONE_NUMBER devono essere settati come variabili d'ambiente")
 
-client = TelegramClient('SpottedMoodBot', api_id, api_hash)
+client = TelegramClient(username, api_id, api_hash)
 
 async def main():
-    await client.start(phone=phone_number)  
+    await client.connect()
+    print("Client connesso...")
+
+    if not await client.is_user_authorized():
+        await client.send_code_request(phone_number)
+        code = input("Inserisci il codice ricevuto su Telegram: ")
+        await client.sign_in(phone_number, code)
+    
     me = await client.get_me()
-    print("Autenticato come utente:", me.first_name, me.username)
+    print("Autenticato come:", me.first_name, f"(@{me.username})")
 
 with client:
-    client.loop.run_until_complete(main())
+    try:
+        client.loop.run_until_complete(main())
+    except Exception as e:
+        print("Errore: ", e)
+
