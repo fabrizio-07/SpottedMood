@@ -6,6 +6,9 @@ __pycache__/
 # Sessions files, i use it for Telethon
 *.session
 
+# messages.json file, it contains the messages extracted from Spotted DMI
+messages.json
+
 # C extensions
 *.so
 
