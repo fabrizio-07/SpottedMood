@@ -3,6 +3,7 @@ import json
 
 async def store_messages(client, chat_id):
     
+    print("Waiting for new messages in Spotted DMI...")
     messages = []
 
     @client.on(events.NewMessage(chats=chat_id))
