@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 telethon = "*"
 pysentimiento = "*"
+python-telegram-bot = "*"
 
 [dev-packages]
 
