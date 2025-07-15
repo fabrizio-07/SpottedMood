@@ -6,10 +6,13 @@ __pycache__/
 # Sessions files, i use it for Telethon
 *.session
 
+# users.json file, it contains the usernames and the user IDs of who sent /start command
+users.json
+
 # messages.json file, it contains the messages extracted from Spotted DMI
 messages.json
 
-#sentiment.json file, it contains the sentiment analysis results
+# sentiment.json file, it contains the sentiment analysis results
 sentiment.json
 
 # C extensions
