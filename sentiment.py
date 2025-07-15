@@ -6,7 +6,7 @@ async def sentiment_analyze(analyzer, hate_analyzer):
 
     results = []
 
-    print("Analyzing today's messages...")
+    print("[SENTIMENT] Analyzing today's messages...")
     for msg in messages:
         sentiment = analyzer.predict(msg['text'])
         hatefulness = hate_analyzer.predict(msg['text'])

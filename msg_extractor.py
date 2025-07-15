@@ -3,7 +3,7 @@ import json
 
 async def store_messages(client, chat_id):
     
-    print("Waiting for new messages in Spotted DMI...")
+    print("[MSG_EXTRACTOR] Waiting for new messages in Spotted DMI...")
     messages = []
 
     @client.on(events.NewMessage(chats=chat_id))
@@ -18,7 +18,7 @@ async def store_messages(client, chat_id):
             }
             if not json_message["text"].startswith("by:"):
                 messages.append(json_message)
-                print(f"New incoming message: '{messages[-1]['text']}'")
+                print(f"[MSG_EXTRACTOR] New incoming message: '{messages[-1]['text']}'")
 
                 with open("messages.json", "w", encoding="utf-8") as f:
                     json.dump(messages, f, ensure_ascii=False, indent=2)
