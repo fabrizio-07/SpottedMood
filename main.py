@@ -2,9 +2,11 @@ import telethon_auth as ta
 import msg_extractor as me
 import sentiment
 import handlers
+import reporter
 from telethon import TelegramClient
 from telegram.ext import ApplicationBuilder, CommandHandler
 from telegram import Bot
+from telegram.error import TelegramError
 import os
 import asyncio
 from pysentimiento import create_analyzer
@@ -33,10 +35,11 @@ app.add_handler(CommandHandler("start",handlers.handle_commands(users_file)))
 
 async def main():
     async with client:
-        await ta.first_auth(client, phone_number)
-        await me.store_messages(client,spotted_id) #I haven't already managed store_messages and run_until_disconnected execution timing to be sure the bot won't stuck on these lines. 
-        await client.run_until_disconnected() 
-        await sentiment.sentiment_analyze(analyzer, hate_analyzer)
+        #await ta.first_auth(client, phone_number)
+        #await me.store_messages(client,spotted_id) #I haven't already managed store_messages and run_until_disconnected execution timing to be sure the bot won't stuck on these lines. 
+        #await client.run_until_disconnected() 
+        #await sentiment.sentiment_analyze(analyzer, hate_analyzer)
+        await reporter.send_report(app.bot)
 
 if __name__ == "__main__":
     try:
