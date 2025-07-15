@@ -16,10 +16,10 @@ async def store_messages(client, chat_id):
                 "date": message.date.isoformat(),
                 "text": message.text,
             }
-    
-            messages.append(json_message)
-            print(f"New incoming message: '{messages[-1]['text']}'")
+            if not json_message["text"].startswith("by:"):
+                messages.append(json_message)
+                print(f"New incoming message: '{messages[-1]['text']}'")
 
-            with open("messages.json", "w", encoding="utf-8") as f:
-                json.dump(messages, f, ensure_ascii=False, indent=2)
+                with open("messages.json", "w", encoding="utf-8") as f:
+                    json.dump(messages, f, ensure_ascii=False, indent=2)
             
