@@ -1,4 +1,3 @@
-import importlib
 import telethon_auth as ta
 import msg_extractor as me
 import sentiment
@@ -11,11 +10,6 @@ import asyncio
 from pysentimiento import create_analyzer
 import pathlib
 import threading
-
-importlib.reload(ta)
-importlib.reload(me)
-importlib.reload(sentiment)
-importlib.reload(handlers)
 
 api_id = int(os.environ.get("API_ID"))
 api_hash = os.environ.get("API_HASH")
