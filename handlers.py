@@ -6,7 +6,7 @@ def handle_commands(users_file):
     print("[HANDLERS] Waiting for commands...")
     async def start(update:Update,context:ContextTypes.DEFAULT_TYPE):
 
-        await update.message.reply_text(f"Hello {update.message.from_user.first_name}!\nThat's SpottedMood, a Bot that analyzes sentiment and hatefulness behind the spots and the comments of Spotted DMI.\nI will give you a daily report of them right here.")
+        await update.message.reply_text(f"Hello {update.message.from_user.first_name}!\nThat's SpottedMood, a Bot that analyzes sentiment and hatefulness behind the spots and the comments of Spotted DMI.\nI will give you a daily report of them right here, everyday at 10P.M.")
 
         if users_file.exists():
             with open("users.json", "r", encoding='utf-8') as usrs:
