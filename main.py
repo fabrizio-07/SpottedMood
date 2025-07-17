@@ -19,23 +19,21 @@ bot_token = os.environ.get("TOKEN_BOT_API")
 phone_number = os.environ.get("PHONE_NUMBER")
 username = "SpottedMood"
 spotted_id = -1001409670397
+users_file = pathlib.Path("users.json")
 
 if not api_id or not api_hash or not phone_number:
     raise ValueError("API_ID, API_HASH e PHONE_NUMBER must be set in .env file.")
 
-users_file = pathlib.Path("users.json")
-
 client = TelegramClient(username, api_id, api_hash)
 app=ApplicationBuilder().token(bot_token).build()
+app.add_handler(CommandHandler("start",handlers.handle_commands(users_file)))
 
 analyzer = create_analyzer(task="sentiment", lang="it")
 hate_analyzer = create_analyzer(task="hate_speech", lang="it")
 
-app.add_handler(CommandHandler("start",handlers.handle_commands(users_file)))
-
 async def main():
     async with client:
-        #await ta.first_auth(client, phone_number)
+        await ta.first_auth(client, phone_number)
         #await me.store_messages(client,spotted_id) #I haven't already managed store_messages and run_until_disconnected execution timing to be sure the bot won't stuck on these lines. 
         #await client.run_until_disconnected() 
         #await sentiment.sentiment_analyze(analyzer, hate_analyzer)
