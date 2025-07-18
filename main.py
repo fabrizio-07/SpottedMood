@@ -28,6 +28,8 @@ messages_file = pathlib.Path("messages.json")
 if not api_id or not api_hash or not phone_number:
     raise ValueError("API_ID, API_HASH e PHONE_NUMBER must be set in .env file.")
 
+print("[MAIN] Starting the bot")
+
 client = TelegramClient(username, api_id, api_hash)
 app=ApplicationBuilder().token(bot_token).build()
 app.add_handler(CommandHandler("start",handlers.handle_commands(users_file)))
