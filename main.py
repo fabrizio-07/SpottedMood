@@ -38,7 +38,7 @@ hate_analyzer = create_analyzer(task="hate_speech", lang="it")
 scheduler = AsyncIOScheduler()
 
 async def start_listening():
-    await me.store_messages(client, spotted_id)
+    await me.store_messages(client, spotted_id, messages_file)
 
 async def stop_listening():
     await me.stop_store_messages(client)

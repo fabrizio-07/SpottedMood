@@ -3,7 +3,7 @@ import json
 
 listener = None
 
-async def store_messages(client, chat_id):
+async def store_messages(client, chat_id, messages_file):
     global listener
     messages = []
 
@@ -11,6 +11,15 @@ async def store_messages(client, chat_id):
         return
 
     print("[MSG_EXTRACTOR] Waiting for new messages in Spotted DMI...")
+
+    if messages_file.exists():
+        try:
+            with open(messages_file, "r", encoding='utf-8') as f:
+                messages = json.load(f)
+        except Exception as e:
+            messages = []
+    else:
+        messages = []
 
     async def messages_listener(event):
         message = event.message
