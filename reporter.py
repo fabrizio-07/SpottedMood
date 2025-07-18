@@ -18,8 +18,20 @@ async def send_report(bot):
     negative = sum(msg['sentiment_probas']['neg'] for msg in sentiment) / len(sentiment)
     hate = sum(msg['hate_probas']['hateful'] for msg in sentiment) / len(sentiment)
     stereotype = sum(msg['hate_probas']['stereotype'] for msg in sentiment) / len(sentiment)
+    joy = sum(msg['emotion_probas']['joy'] for msg in sentiment) / len(sentiment)
+    sadness = sum(msg['emotion_probas']['sadness'] for msg in sentiment) / len(sentiment)
+    anger = sum(msg['emotion_probas']['anger'] for msg in sentiment) / len(sentiment)
+    fear = sum(msg['emotion_probas']['fear'] for msg in sentiment) / len(sentiment)
+    
+    emotions={
+        'joy' : joy,
+        'anger' : anger,
+        'fear' : fear,
+        'sadness' : sadness
+    }
     
     sentiment_result = "positive" if positive > negative else "negative"
+    emotion_result = max(emotions, key=emotions.get)
 
     try:
         with open("users.json", "r", encoding='utf-8') as f:
@@ -29,7 +41,7 @@ async def send_report(bot):
         print("[REPORTER] File 'users.json' not found.")
         return
     
-    most_pos, most_neg, most_hate, most_stereotype = 0,0,0,0
+    most_pos, most_neg, most_hate, most_stereotype, most_fear, most_anger, most_joy, most_sadness = 0,0,0,0,0,0,0,0
     for msg in sentiment:
         if msg['sentiment_probas']['pos'] > most_pos:
             most_pos = msg['sentiment_probas']['pos']
@@ -38,26 +50,49 @@ async def send_report(bot):
         if msg['hate_probas']['hateful'] > most_hate:
             most_hate = msg['hate_probas']['hateful']
         if msg['hate_probas']['stereotype'] > most_stereotype:
-            most_stereotype = msg['hate_probas']['stereotype']
+            most_stereotype = msg['hate_probas']['stereotype']  
+        if msg['emotion_probas']['joy'] > most_joy:
+            most_joy = msg['emotion_probas']['joy']
+        if msg['emotion_probas']['sadness'] > most_sadness:
+            most_sadness = msg['emotion_probas']['sadness']
+        if msg['emotion_probas']['anger'] > most_anger:
+            most_anger = msg['emotion_probas']['anger']
+        if msg['emotion_probas']['fear'] > most_fear:
+            most_fear = msg['emotion_probas']['fear']
 
     for user in users:
         try:
             await bot.send_message(
                 chat_id=user['user_id'],
-                text=(
-                    f"Hi {user['username']}!\n\n"
-                    f"Today's sentiment analysis results are:\n"
-                    f"Most common mood: {sentiment_result}\n"
-                    f"{positive:.2%} positive\n"
-                    f"{negative:.2%} negative\n"
-                    f"{hate:.2%} hateful\n"
-                    f"{stereotype:.2%} stereotype\n\n"
-                    f"Most positivite message has {most_pos:.2%} positive mood\n"
-                    f"Most negativity message has {most_neg:.2%} negative mood\n"
-                    f"Most hateful message has {most_hate:.2%} hatefulness\n"
-                    f"Most stereotyped message has {most_stereotype:.2%} stereotype\n\n"
-                    "See you tomorrow for the next report!"
-                )
+                text = (
+                    f"👋 Hello {user['username']}!\n\n"
+                    f"🧠 *Today's Sentiment Analysis*\n"
+                    f"• 🟢 Positivity: *{positive:.2%}*\n"
+                    f"• 🔴 Negativity: *{negative:.2%}*\n"
+                    f"• ⚠️ Hate speech: *{hate:.2%}*\n"
+                    f"• 🧩 Stereotypes: *{stereotype:.2%}*\n"
+                    f"• 🏁 Dominant sentiment: *{sentiment_result}*\n\n"
+
+                    f"🎭 *Emotion Overview*\n"
+                    f"• 😊 Joy: *{joy:.2%}*\n"
+                    f"• 😢 Sadness: *{sadness:.2%}*\n"
+                    f"• 😠 Anger: *{anger:.2%}*\n"
+                    f"• 😱 Fear: *{fear:.2%}*\n"
+                    f"• 🏁 Dominant emotion: *{emotion_result}*\n\n"
+
+                    f"📊 *Most Intense Messages*\n"
+                    f"• ✨ Most positive: *{most_pos:.2%}*\n"
+                    f"• 💥 Most negative: *{most_neg:.2%}*\n"
+                    f"• 🚫 Most hateful: *{most_hate:.2%}*\n"
+                    f"• 🧠 Most stereotypical: *{most_stereotype:.2%}*\n"
+                    f"• 😄 Max joy: *{most_joy:.2%}*\n"
+                    f"• 😡 Max anger: *{most_anger:.2%}*\n"
+                    f"• 😭 Max sadness: *{most_sadness:.2%}*\n"
+                    f"• 😨 Max fear: *{most_fear:.2%}*\n\n"
+
+                    f"📅 See you tomorrow with a new report!"
+                ),
+                parse_mode='Markdown'
             )
             print(f"[REPORTER] Report sent to {user['username']}")
         except TelegramError as e:
