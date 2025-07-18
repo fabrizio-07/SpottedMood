@@ -67,6 +67,9 @@ cover/
 *.mo
 *.pot
 
+# Errors logging file:
+*.err
+
 # Django stuff:
 *.log
 local_settings.py
