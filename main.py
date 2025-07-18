@@ -11,7 +11,6 @@ import os
 import asyncio
 from pysentimiento import create_analyzer
 import pathlib
-import threading
 import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
