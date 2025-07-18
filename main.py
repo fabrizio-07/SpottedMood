@@ -33,8 +33,9 @@ client = TelegramClient(username, api_id, api_hash)
 app=ApplicationBuilder().token(bot_token).build()
 app.add_handler(CommandHandler("start",handlers.handle_commands(users_file)))
 
-analyzer = create_analyzer(task="sentiment", lang="it")
+sentiment_analyzer = create_analyzer(task="sentiment", lang="it")
 hate_analyzer = create_analyzer(task="hate_speech", lang="it")
+emotion_analyzer = create_analyzer(task="emotion", lang="it")
 
 scheduler = AsyncIOScheduler()
 
@@ -47,7 +48,7 @@ async def stop_listening():
 async def daily_job():
     print("[MAIN] Starting to analyze messages and send report...")
     await stop_listening()
-    await sentiment.sentiment_analyze(analyzer, hate_analyzer)
+    await sentiment.sentiment_analyze(sentiment_analyzer, hate_analyzer, emotion_analyzer)
     await reporter.send_report(app.bot)
     print("[MAIN] Emptying messages.json")
     messages_file.write_text("[]")
@@ -60,7 +61,7 @@ async def main():
         print("[MAIN] Starting to listen messages...")
         await start_listening()
 
-        scheduler.add_job(daily_job, CronTrigger(hour=22, minute=0))
+        scheduler.add_job(daily_job, CronTrigger(hour=16, minute=41))
         scheduler.start()
 
         await app.initialize() 
