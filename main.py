@@ -61,7 +61,7 @@ async def main():
         print("[MAIN] Starting to listen messages...")
         await start_listening()
 
-        scheduler.add_job(daily_job, CronTrigger(hour=16, minute=41))
+        scheduler.add_job(daily_job, CronTrigger(hour=22, minute=0))
         scheduler.start()
 
         await app.initialize() 
