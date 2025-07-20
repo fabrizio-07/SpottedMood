@@ -68,9 +68,6 @@ async def main():
         await app.start() 
         await app.updater.start_polling()
         await client.run_until_disconnected()
-        await app.updater.stop()
-        await app.stop()
-        await app.shutdown()
 
 if __name__ == "__main__":
     try:
