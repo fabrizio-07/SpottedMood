@@ -14,8 +14,17 @@ async def send_report(bot):
         print("[REPORTER] Error decoding 'sentiment.json'.")
         return
 
-    positive = sum(msg['sentiment_probas']['pos'] for msg in sentiment) / len(sentiment)
-    negative = sum(msg['sentiment_probas']['neg'] for msg in sentiment) / len(sentiment)
+    pos_msgs = [msg for msg in sentiment if msg['sentiment_probas']['pos'] > msg['sentiment_probas']['neg']]
+    neg_msgs = [msg for msg in sentiment if msg['sentiment_probas']['neg'] >= msg['sentiment_probas']['pos']]
+
+    num_msgs = len(pos_msgs) + len(neg_msgs)
+    if num_msgs > 0:
+        positive = len(pos_msgs) / num_msgs
+        negative = len(neg_msgs) / num_msgs
+    else:
+        positive = 0
+        negative = 0
+
     hate = sum(msg['hate_probas']['hateful'] for msg in sentiment) / len(sentiment)
     stereotype = sum(msg['hate_probas']['stereotype'] for msg in sentiment) / len(sentiment)
     joy = sum(msg['emotion_probas']['joy'] for msg in sentiment) / len(sentiment)
