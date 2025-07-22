@@ -2,6 +2,9 @@ import json
 from telegram.error import TelegramError
 
 async def send_report(bot):
+
+    highlights = []
+
     try:
         with open('sentiment.json', 'r', encoding='utf-8') as sntm:
             sentiment = json.load(sntm)
@@ -18,12 +21,8 @@ async def send_report(bot):
     neg_msgs = [msg for msg in sentiment if msg['sentiment_probas']['neg'] >= msg['sentiment_probas']['pos']]
 
     num_msgs = len(pos_msgs) + len(neg_msgs)
-    if num_msgs > 0:
-        positive = len(pos_msgs) / num_msgs
-        negative = len(neg_msgs) / num_msgs
-    else:
-        positive = 0
-        negative = 0
+    positive = len(pos_msgs) / num_msgs if num_msgs > 0 else 0
+    negative = len(neg_msgs) / num_msgs if num_msgs > 0 else 0
 
     hate = sum(msg['hate_probas']['hateful'] for msg in sentiment) / len(sentiment)
     stereotype = sum(msg['hate_probas']['stereotype'] for msg in sentiment) / len(sentiment)
@@ -50,24 +49,44 @@ async def send_report(bot):
         print("[REPORTER] File 'users.json' not found.")
         return
     
-    most_pos, most_neg, most_hate, most_stereotype, most_fear, most_anger, most_joy, most_sadness = 0,0,0,0,0,0,0,0
+    max_data = {
+        'most_positive': {'value': 0, 'text': ''},
+        'most_negative': {'value': 0, 'text': ''},
+        'most_hateful': {'value': 0, 'text': ''},
+        'most_stereotype': {'value': 0, 'text': ''},
+        'max_joy': {'value': 0, 'text': ''},
+        'max_sadness': {'value': 0, 'text': ''},
+        'max_anger': {'value': 0, 'text': ''},
+        'max_fear': {'value': 0, 'text': ''}
+    }
+
     for msg in sentiment:
-        if msg['sentiment_probas']['pos'] > most_pos:
-            most_pos = msg['sentiment_probas']['pos']
-        if msg['sentiment_probas']['neg'] > most_neg:
-            most_neg = msg['sentiment_probas']['neg']
-        if msg['hate_probas']['hateful'] > most_hate:
-            most_hate = msg['hate_probas']['hateful']
-        if msg['hate_probas']['stereotype'] > most_stereotype:
-            most_stereotype = msg['hate_probas']['stereotype']  
-        if msg['emotion_probas']['joy'] > most_joy:
-            most_joy = msg['emotion_probas']['joy']
-        if msg['emotion_probas']['sadness'] > most_sadness:
-            most_sadness = msg['emotion_probas']['sadness']
-        if msg['emotion_probas']['anger'] > most_anger:
-            most_anger = msg['emotion_probas']['anger']
-        if msg['emotion_probas']['fear'] > most_fear:
-            most_fear = msg['emotion_probas']['fear']
+        if msg['sentiment_probas']['pos'] > max_data['most_positive']['value']:
+            max_data['most_positive'] = {'value': msg['sentiment_probas']['pos'], 'text': msg['text']}
+        if msg['sentiment_probas']['neg'] > max_data['most_negative']['value']:
+            max_data['most_negative'] = {'value': msg['sentiment_probas']['neg'], 'text': msg['text']}
+        if msg['hate_probas']['hateful'] > max_data['most_hateful']['value']:
+            max_data['most_hateful'] = {'value': msg['hate_probas']['hateful'], 'text': msg['text']}
+        if msg['hate_probas']['stereotype'] > max_data['most_stereotype']['value']:
+            max_data['most_stereotype'] = {'value': msg['hate_probas']['stereotype'], 'text': msg['text']}
+        if msg['emotion_probas']['joy'] > max_data['max_joy']['value']:
+            max_data['max_joy'] = {'value': msg['emotion_probas']['joy'], 'text': msg['text']}
+        if msg['emotion_probas']['sadness'] > max_data['max_sadness']['value']:
+            max_data['max_sadness'] = {'value': msg['emotion_probas']['sadness'], 'text': msg['text']}
+        if msg['emotion_probas']['anger'] > max_data['max_anger']['value']:
+            max_data['max_anger'] = {'value': msg['emotion_probas']['anger'], 'text': msg['text']}
+        if msg['emotion_probas']['fear'] > max_data['max_fear']['value']:
+            max_data['max_fear'] = {'value': msg['emotion_probas']['fear'], 'text': msg['text']}
+
+    for key, data in max_data.items():
+        highlights.append({
+            "emotion": key,
+            "text": data["text"],
+            "score": round(data["value"], 4)
+        })
+
+    with open("highlights.json", "w", encoding="utf-8") as out:
+        json.dump(highlights, out, ensure_ascii=False, indent=4)
 
     for user in users:
         try:
@@ -78,8 +97,6 @@ async def send_report(bot):
                     f"🧠 *Today's Sentiment Analysis*\n"
                     f"• 🟢 Positivity: *{positive:.2%}*\n"
                     f"• 🔴 Negativity: *{negative:.2%}*\n"
-                    f"• ⚠️ Hate speech: *{hate:.2%}*\n"
-                    f"• 🧩 Stereotypes: *{stereotype:.2%}*\n"
                     f"• 🏁 Dominant sentiment: *{sentiment_result}*\n\n"
 
                     f"🎭 *Emotion Overview*\n"
@@ -89,15 +106,19 @@ async def send_report(bot):
                     f"• 😱 Fear: *{fear:.2%}*\n"
                     f"• 🏁 Dominant emotion: *{emotion_result}*\n\n"
 
+                    f"⚠️ *Other Overview*\n"
+                    f"• ⁉️ Hate speech: *{hate:.2%}*\n"
+                    f"• 🧩 Stereotypes: *{stereotype:.2%}*\n\n"
+
                     f"📊 *Most Intense Messages*\n"
-                    f"• ✨ Most positive: *{most_pos:.2%}*\n"
-                    f"• 💥 Most negative: *{most_neg:.2%}*\n"
-                    f"• 🚫 Most hateful: *{most_hate:.2%}*\n"
-                    f"• 🧠 Most stereotypical: *{most_stereotype:.2%}*\n"
-                    f"• 😄 Max joy: *{most_joy:.2%}*\n"
-                    f"• 😡 Max anger: *{most_anger:.2%}*\n"
-                    f"• 😭 Max sadness: *{most_sadness:.2%}*\n"
-                    f"• 😨 Max fear: *{most_fear:.2%}*\n\n"
+                    f"• ✨ Most positive: *{max_data['most_positive']['value']:.2%}*\n"
+                    f"• 💥 Most negative: *{max_data['most_negative']['value']:.2%}*\n"
+                    f"• 🚫 Most hateful: *{max_data['most_hateful']['value']:.2%}*\n"
+                    f"• 🧠 Most stereotypical: *{max_data['most_stereotype']['value']:.2%}*\n"
+                    f"• 😄 Max joy: *{max_data['max_joy']['value']:.2%}*\n"
+                    f"• 😡 Max anger: *{max_data['max_anger']['value']:.2%}*\n"
+                    f"• 😭 Max sadness: *{max_data['max_sadness']['value']:.2%}*\n"
+                    f"• 😨 Max fear: *{max_data['max_fear']['value']:.2%}*\n\n"
 
                     f"📅 See you tomorrow with a new report!"
                 ),
