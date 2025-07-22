@@ -3,8 +3,11 @@ __pycache__/
 *.py[codz]
 *$py.class
 
-# Sessions files, i use it for Telethon
+# Sessions files, its used for Telethon
 *.session
+
+# highlights.json file, it contains text and value of most intense messages
+highlights.json
 
 # users.json file, it contains the usernames and the user IDs of who sent /start command
 users.json
