@@ -23,6 +23,7 @@ username = "SpottedMood"
 spotted_id = -1001409670397
 users_file = pathlib.Path("users.json")
 messages_file = pathlib.Path("messages.json")
+highlights_file = pathlib.Path("highlights.json")
 
 if not api_id or not api_hash or not phone_number:
     raise ValueError("API_ID, API_HASH e PHONE_NUMBER must be set in .env file.")
@@ -31,7 +32,9 @@ print("[MAIN] Starting the bot")
 
 client = TelegramClient(username, api_id, api_hash)
 app=ApplicationBuilder().token(bot_token).build()
-app.add_handler(CommandHandler("start",handlers.handle_commands(users_file)))
+start_cmd, highlights_cmd = handlers.handle_commands(users_file, highlights_file)
+app.add_handler(CommandHandler("start", start_cmd))
+app.add_handler(CommandHandler("highlights", highlights_cmd))
 
 sentiment_analyzer = create_analyzer(task="sentiment", lang="it")
 hate_analyzer = create_analyzer(task="hate_speech", lang="it")

@@ -2,8 +2,14 @@ import json
 from telegram import Update
 from telegram.ext import ContextTypes
 
-def handle_commands(users_file):
+def handle_commands(users_file,hl_file):
+
     print("[HANDLERS] Waiting for commands...")
+
+    with open("highlights.json","r",encoding="utf-8") as f:
+        raw_hl = json.load(f)
+        hl = {item["emotion"]: item for item in raw_hl}
+    
     async def start(update:Update,context:ContextTypes.DEFAULT_TYPE):
 
         await update.message.reply_text(
@@ -33,4 +39,21 @@ def handle_commands(users_file):
                 usrs.write(json.dumps(users, ensure_ascii=False, indent=2))
 
             print(f"[HANDLERS] New user added: {update.message.from_user.first_name}")
-    return start
+
+    async def highlights(update: Update, context:ContextTypes.DEFAULT_TYPE):
+
+        if hl_file.exists():
+            await update.message.reply_text(
+                f"📊 *Last Report Most Intense Messages*:\n"
+                f"• ✨ Most *positive* message: '{hl.get('most_positive', {}).get('text', 'N/A')}'\n\n"
+                f"• 💥 Most *negative* message: '{hl.get('most_negative', {}).get('text', 'N/A')}'\n\n"
+                f"• 🚫 Most *hateful* message: '{hl.get('most_hateful', {}).get('text', 'N/A')}'\n\n"
+                f"• 🧠 Most *stereotypical* message: '{hl.get('most_stereotype', {}).get('text', 'N/A')}'\n\n"
+                f"• 😄 Max *joy* message: '{hl.get('max_joy', {}).get('text', 'N/A')}'\n\n"
+                f"• 😡 Max *anger* message: '{hl.get('max_anger', {}).get('text', 'N/A')}'\n\n"
+                f"• 😭 Max *sadness* message: '{hl.get('max_sadness', {}).get('text', 'N/A')}'\n\n"
+                f"• 😨 Max *fear* message: '{hl.get('max_fear', {}).get('text', 'N/A')}'\n\n",
+                parse_mode="Markdown"
+            )
+
+    return start, highlights
