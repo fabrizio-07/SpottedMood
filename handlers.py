@@ -69,7 +69,7 @@ def handle_commands(users_file,hl_file):
         await update.message.reply_text(
             "🛠 *SpottedMood Bot Help*\n\n"
             "Here are the available commands:\n\n"
-            "• /start – Introduce the SpottedMood and subscribe to the daily report about mood, emotions, stereotypical and hateful content detected in Spotted DMI.\n"
+            "• /start – Introduce SpottedMood Bot and subscribe to the daily report about mood, emotions, stereotypical and hateful content detected in Spotted DMI.\n"
             "• /highlights – Show the most intense messages from the latest report.\n"
             "• /help – Display this help message.\n\n"
             "For issues or feedback, contact the bot admin: @Avaja\\_mbare\n\n"
