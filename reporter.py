@@ -120,6 +120,8 @@ async def send_report(bot):
                     f"• 😭 Max sadness: *{max_data['max_sadness']['value']:.2%}*\n"
                     f"• 😨 Max fear: *{max_data['max_fear']['value']:.2%}*\n\n"
 
+                    f"📥 Curious? Use /highlights to check today's most emotionally impactful messages\n\n"
+
                     f"📅 See you tomorrow with a new report!"
                 ),
                 parse_mode='Markdown'
