@@ -12,6 +12,8 @@ def handle_commands(users_file,hl_file):
     
     async def start(update:Update,context:ContextTypes.DEFAULT_TYPE):
 
+        print(f"[HANDLERS] {update.message.from_user.first_name} has used /start")
+
         await update.message.reply_text(
             f"👋 *Hey {update.message.from_user.first_name}!* \n\n"
             f"I'm *SpottedMood* — your friendly mood analyst bot! 🧠💬\n\n"
@@ -41,6 +43,8 @@ def handle_commands(users_file,hl_file):
             print(f"[HANDLERS] New user added: {update.message.from_user.first_name}")
 
     async def highlights(update: Update, context:ContextTypes.DEFAULT_TYPE):
+
+        print(f"[HANDLERS] {update.message.from_user.first_name} has used /highlights")
 
         if hl_file.exists():
             await update.message.reply_text(
