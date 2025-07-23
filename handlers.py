@@ -1,4 +1,5 @@
 import json
+import telegram
 from telegram import Update
 from telegram.ext import ContextTypes
 
@@ -18,8 +19,9 @@ def handle_commands(users_file,hl_file):
             f"👋 *Hey {update.message.from_user.first_name}!* \n\n"
             f"I'm *SpottedMood* — your friendly mood analyst bot! 🧠💬\n\n"
             f"Every day at 🕙 *10:00 PM*, I’ll send you a quick report about the *sentiment*, *emotions*, and *hateful content* found in the spots and comments from *Spotted DMI*.\n\n"
+            f"Type /help to learn more about my commands.\n\n"
             f"Stay tuned to see how the mood of the day evolves! 📊✨",
-            parse_mode='Markdown'
+            parse_mode="Markdown"
         )
 
         if users_file.exists():
@@ -60,4 +62,19 @@ def handle_commands(users_file,hl_file):
                 parse_mode="Markdown"
             )
 
-    return start, highlights
+    async def help(update: Update, context:ContextTypes.DEFAULT_TYPE):
+
+        print(f"[HANDLERS] {update.message.from_user.first_name} has used /help")
+
+        await update.message.reply_text(
+            "🛠 *SpottedMood Bot Help*\n\n"
+            "Here are the available commands:\n\n"
+            "• /start – Introduce the SpottedMood and subscribe to the daily report about mood, emotions, stereotypical and hateful content detected in Spotted DMI.\n"
+            "• /highlights – Show the most intense messages from the latest report.\n"
+            "• /help – Display this help message.\n\n"
+            "For issues or feedback, contact the bot admin: @Avaja\\_mbare\n\n"
+            "Stay tuned and keep spot! 🤖💬",
+            parse_mode="Markdown"
+        )
+
+    return start, highlights, help
