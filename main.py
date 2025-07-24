@@ -60,19 +60,22 @@ async def daily_job():
     await start_listening()
 
 async def main():
-    async with client:
-        print("[MAIN] Starting initial authentication...")
-        await ta.first_auth(client, phone_number)
-        print("[MAIN] Starting to listen messages...")
-        await start_listening()
+    print("[MAIN] Starting initial authentication...")
+    await client.connect()
+    await ta.first_auth(client, phone_number)
+    print("[MAIN] Starting to listen messages...")
+    await start_listening()
 
-        scheduler.add_job(daily_job, CronTrigger(hour=22, minute=0))
-        scheduler.start()
+    scheduler.add_job(daily_job, CronTrigger(hour=22, minute=0))
+    scheduler.start()
 
-        await app.initialize() 
-        await app.start() 
-        await app.updater.start_polling()
-        await client.run_until_disconnected()
+    await app.initialize()
+    await app.start()
+
+    await asyncio.gather(
+        app.updater.start_polling(),
+        client.disconnected
+    )
 
 if __name__ == "__main__":
     try:
