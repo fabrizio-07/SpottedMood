@@ -14,6 +14,7 @@ import pathlib
 import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+import traceback
 
 api_id = int(os.environ.get("API_ID"))
 api_hash = os.environ.get("API_HASH")
@@ -81,4 +82,5 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except Exception as e:
-        print("Error:", e)
+        print("[FATAL ERROR]", str(e))
+        traceback.print_exc()
