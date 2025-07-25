@@ -15,6 +15,7 @@ import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 import traceback
+import time
 
 api_id = int(os.environ.get("API_ID"))
 api_hash = os.environ.get("API_HASH")
@@ -73,10 +74,16 @@ async def main():
     await app.initialize()
     await app.start()
 
-    await asyncio.gather(
-        app.updater.start_polling(),
-        client.disconnected
-    )
+    try:
+        await app.updater.start_polling()
+        while True:
+            await asyncio.sleep(20)
+    except Exception:
+        print("[MAIN ERROR] polling failed:")
+        traceback.print_exc()
+        await asyncio.sleep(10)
+    finally:
+        print("[MAIN] Exiting cleanly")
 
 if __name__ == "__main__":
     try:
