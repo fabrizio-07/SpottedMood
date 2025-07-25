@@ -85,6 +85,9 @@ async def send_report(bot):
             "score": round(data["value"], 4)
         })
 
+
+    print("[REPORTER] Creating the highlights...")
+
     with open("highlights.json", "w", encoding="utf-8") as out:
         json.dump(highlights, out, ensure_ascii=False, indent=4)
 
