@@ -1,5 +1,9 @@
 import json
 from telegram.error import TelegramError
+import re
+
+def clean_markdown(text):
+    return re.sub(r'[*_\[\]()~`>#+\-=|{}.!]', '', text)
 
 async def send_report(bot):
 
@@ -62,21 +66,21 @@ async def send_report(bot):
 
     for msg in sentiment:
         if msg['sentiment_probas']['pos'] > max_data['most_positive']['value']:
-            max_data['most_positive'] = {'value': msg['sentiment_probas']['pos'], 'text': msg['text']}
+            max_data['most_positive'] = {'value': msg['sentiment_probas']['pos'], 'text': clean_markdown(msg['text'])}
         if msg['sentiment_probas']['neg'] > max_data['most_negative']['value']:
-            max_data['most_negative'] = {'value': msg['sentiment_probas']['neg'], 'text': msg['text']}
+            max_data['most_negative'] = {'value': msg['sentiment_probas']['neg'], 'text': clean_markdown(msg['text'])}
         if msg['hate_probas']['hateful'] > max_data['most_hateful']['value']:
-            max_data['most_hateful'] = {'value': msg['hate_probas']['hateful'], 'text': msg['text']}
+            max_data['most_hateful'] = {'value': msg['hate_probas']['hateful'], 'text': clean_markdown(msg['text'])}
         if msg['hate_probas']['stereotype'] > max_data['most_stereotype']['value']:
-            max_data['most_stereotype'] = {'value': msg['hate_probas']['stereotype'], 'text': msg['text']}
+            max_data['most_stereotype'] = {'value': msg['hate_probas']['stereotype'], 'text': clean_markdown(msg['text'])}
         if msg['emotion_probas']['joy'] > max_data['max_joy']['value']:
-            max_data['max_joy'] = {'value': msg['emotion_probas']['joy'], 'text': msg['text']}
+            max_data['max_joy'] = {'value': msg['emotion_probas']['joy'], 'text': clean_markdown(msg['text'])}
         if msg['emotion_probas']['sadness'] > max_data['max_sadness']['value']:
-            max_data['max_sadness'] = {'value': msg['emotion_probas']['sadness'], 'text': msg['text']}
+            max_data['max_sadness'] = {'value': msg['emotion_probas']['sadness'], 'text': clean_markdown(msg['text'])}
         if msg['emotion_probas']['anger'] > max_data['max_anger']['value']:
-            max_data['max_anger'] = {'value': msg['emotion_probas']['anger'], 'text': msg['text']}
+            max_data['max_anger'] = {'value': msg['emotion_probas']['anger'], 'text': clean_markdown(msg['text'])}
         if msg['emotion_probas']['fear'] > max_data['max_fear']['value']:
-            max_data['max_fear'] = {'value': msg['emotion_probas']['fear'], 'text': msg['text']}
+            max_data['max_fear'] = {'value': msg['emotion_probas']['fear'], 'text': clean_markdown(msg['text'])}
 
     for key, data in max_data.items():
         highlights.append({
