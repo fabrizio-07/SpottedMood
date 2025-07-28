@@ -84,6 +84,9 @@ async def main():
         await asyncio.sleep(10)
     finally:
         print("[MAIN] Exiting cleanly")
+        await app.stop()
+        await app.shutdown()
+        await client.disconnect()
 
 if __name__ == "__main__":
     try:
