@@ -35,10 +35,11 @@ print("[MAIN] Starting the bot")
 client = TelegramClient(username, api_id, api_hash)
 
 app=ApplicationBuilder().token(bot_token).build()
-start_cmd, highlights_cmd, help_cmd = handlers.handle_commands(users_file, highlights_file)
+start_cmd, highlights_cmd, help_cmd, stop_cmd = handlers.handle_commands(users_file, highlights_file)
 app.add_handler(CommandHandler("start", start_cmd))
 app.add_handler(CommandHandler("highlights", highlights_cmd))
 app.add_handler(CommandHandler("help",help_cmd))
+app.add_handler(CommandHandler("stop", stop_cmd))
 
 sentiment_analyzer = create_analyzer(task="sentiment", lang="it")
 hate_analyzer = create_analyzer(task="hate_speech", lang="it")

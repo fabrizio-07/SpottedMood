@@ -70,10 +70,38 @@ def handle_commands(users_file,hl_file):
             "Here are the available commands:\n\n"
             "• /start – Introduce SpottedMood Bot and subscribe to the daily report about mood, emotions, stereotypical and hateful content detected in Spotted DMI.\n"
             "• /highlights – Show the most intense messages from the latest report.\n"
+            "• /stop – Unsubscribe from daily reports.\n"
             "• /help – Display this help message.\n\n"
             "For issues or feedback, contact the bot admin: @Avaja\\_mbare\n\n"
             "Stay tuned and keep spot! 🤖💬",
             parse_mode="Markdown"
         )
 
-    return start, highlights, help
+    async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        print(f"[HANDLERS] {update.message.from_user.first_name} has used /stop")
+
+        if users_file.exists():
+            with open("users.json", "r", encoding='utf-8') as usrs:
+                try:
+                    users = json.load(usrs)
+                except Exception:
+                    users = []
+        else:
+            users = []
+
+        user_id = update.message.from_user.id
+        initial_count = len(users)
+        
+        users = [u for u in users if u["user_id"] != user_id]
+
+        if len(users) < initial_count:
+            with open("users.json", "w", encoding='utf-8') as usrs:
+                usrs.write(json.dumps(users, ensure_ascii=False, indent=2))
+            print(f"[HANDLERS] {update.message.from_user.first_name} removed from users.json")
+
+        await update.message.reply_text(
+            f"I will not send you updates anymore, until you use the /start command again! 👋✨",
+            parse_mode="Markdown"
+        )
+
+    return start, highlights, help, stop
