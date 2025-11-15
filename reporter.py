@@ -28,12 +28,20 @@ async def send_report(bot):
     positive = len(pos_msgs) / num_msgs if num_msgs > 0 else 0
     negative = len(neg_msgs) / num_msgs if num_msgs > 0 else 0
 
-    hate = sum(msg['hate_probas']['hateful'] for msg in sentiment) / len(sentiment)
-    stereotype = sum(msg['hate_probas']['stereotype'] for msg in sentiment) / len(sentiment)
-    joy = sum(msg['emotion_probas']['joy'] for msg in sentiment) / len(sentiment)
-    sadness = sum(msg['emotion_probas']['sadness'] for msg in sentiment) / len(sentiment)
-    anger = sum(msg['emotion_probas']['anger'] for msg in sentiment) / len(sentiment)
-    fear = sum(msg['emotion_probas']['fear'] for msg in sentiment) / len(sentiment)
+    hate = 0
+    stereotype = 0
+    joy = 0
+    sadness = 0
+    anger = 0
+    fear = 0
+
+    if(len(sentiment)>0):
+        hate = sum(msg['hate_probas']['hateful'] for msg in sentiment) / len(sentiment)
+        stereotype = sum(msg['hate_probas']['stereotype'] for msg in sentiment) / len(sentiment)
+        joy = sum(msg['emotion_probas']['joy'] for msg in sentiment) / len(sentiment)
+        sadness = sum(msg['emotion_probas']['sadness'] for msg in sentiment) / len(sentiment)
+        anger = sum(msg['emotion_probas']['anger'] for msg in sentiment) / len(sentiment)
+        fear = sum(msg['emotion_probas']['fear'] for msg in sentiment) / len(sentiment)
     
     emotions={
         'joy' : joy,
