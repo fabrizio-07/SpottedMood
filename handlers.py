@@ -5,10 +5,6 @@ from telegram.ext import ContextTypes
 def handle_commands(users_file,hl_file):
 
     print("[HANDLERS] Waiting for commands...")
-
-    with open("highlights.json","r",encoding="utf-8") as f:
-        raw_hl = json.load(f)
-        hl = {item["emotion"]: item for item in raw_hl}
     
     async def start(update:Update,context:ContextTypes.DEFAULT_TYPE):
 
@@ -47,19 +43,38 @@ def handle_commands(users_file,hl_file):
 
         print(f"[HANDLERS] {update.message.from_user.first_name} has used /highlights")
 
-        if hl_file.exists():
-            await update.message.reply_text(
-                f"📊 *Last Report Most Intense Messages*:\n"
-                f"• ✨ Most *positive* message: '{hl.get('most_positive', {}).get('text', 'N/A')}'\n\n"
-                f"• 💥 Most *negative* message: '{hl.get('most_negative', {}).get('text', 'N/A')}'\n\n"
-                f"• 🚫 Most *hateful* message: '{hl.get('most_hateful', {}).get('text', 'N/A')}'\n\n"
-                f"• 🧠 Most *stereotypical* message: '{hl.get('most_stereotype', {}).get('text', 'N/A')}'\n\n"
-                f"• 😄 Max *joy* message: '{hl.get('max_joy', {}).get('text', 'N/A')}'\n\n"
-                f"• 😡 Max *anger* message: '{hl.get('max_anger', {}).get('text', 'N/A')}'\n\n"
-                f"• 😭 Max *sadness* message: '{hl.get('max_sadness', {}).get('text', 'N/A')}'\n\n"
-                f"• 😨 Max *fear* message: '{hl.get('max_fear', {}).get('text', 'N/A')}'\n\n",
-                parse_mode="Markdown"
-            )
+        if not hl_file.exists():
+            await update.message.reply_text("Highlights are not available yet. Please check back after the 10 PM report.")
+            return
+        
+        try:
+
+            with open(hl_file, "r", encoding="utf-8") as f:
+                raw_hl = json.load(f)
+
+                if not raw_hl:
+                    await update.message.reply_text("Highlights file is empty. Please check back later.")
+                    return
+                
+                hl = {item["emotion"]: item for item in raw_hl}
+
+        except (json.JSONDecodeError, FileNotFoundError):
+            print("[HANDLERS] Error reading or parsing highlights.json")
+            await update.message.reply_text("Sorry, I had trouble reading the highlights file.")
+            return
+        
+        await update.message.reply_text(
+            f"📊 *Last Report Most Intense Messages*:\n"
+            f"• ✨ Most *positive* message: '{hl.get('most_positive', {}).get('text', 'N/A')}'\n\n"
+            f"• 💥 Most *negative* message: '{hl.get('most_negative', {}).get('text', 'N/A')}'\n\n"
+            f"• 🚫 Most *hateful* message: '{hl.get('most_hateful', {}).get('text', 'N/A')}'\n\n"
+            f"• 🧠 Most *stereotypical* message: '{hl.get('most_stereotype', {}).get('text', 'N/A')}'\n\n"
+            f"• 😄 Max *joy* message: '{hl.get('max_joy', {}).get('text', 'N/A')}'\n\n"
+            f"• 😡 Max *anger* message: '{hl.get('max_anger', {}).get('text', 'N/A')}'\n\n"
+            f"• 😭 Max *sadness* message: '{hl.get('max_sadness', {}).get('text', 'N/A')}'\n\n"
+            f"• 😨 Max *fear* message: '{hl.get('max_fear', {}).get('text', 'N/A')}'\n\n",
+            parse_mode="Markdown"
+        )
 
     async def help(update: Update, context:ContextTypes.DEFAULT_TYPE):
 
