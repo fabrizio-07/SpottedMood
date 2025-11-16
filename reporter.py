@@ -3,7 +3,7 @@ from telegram.error import TelegramError
 import re
 
 def clean_markdown(text):
-    return re.sub(r'[*_\[\]()~`>#+\-=|{}.!]', '', text)
+    return re.sub(r'([*_`\[\]])', r'\\\1', text)
 
 async def send_report(bot):
 
