@@ -8,6 +8,7 @@ telethon = "*"
 pysentimiento = "*"
 python-telegram-bot = "*"
 apscheduler = "*"
+matplotlib = "*"
 
 [dev-packages]
 
