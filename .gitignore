@@ -6,8 +6,8 @@ __pycache__/
 # Sessions files, its used for Telethon
 *.session
 
-# highlights.json file, it contains text and value of most intense messages
-highlights.json
+# daily_report.json file, it contains all the data about the daily report.
+daily_report.json
 
 # users.json file, it contains the usernames and the user IDs of who sent /start command
 users.json
@@ -17,6 +17,9 @@ messages.json
 
 # sentiment.json file, it contains the sentiment analysis results
 sentiment.json
+
+# plots files, which shows the changes of the emotions through the day
+*.png
 
 # C extensions
 *.so
