@@ -15,6 +15,7 @@ async def sentiment_analyze(sentiment_analyzer, hate_analyzer, emotion_analyzer)
         results.append({
             'id': msg['id'],
             'text': msg['text'],
+            'date': msg['date'],
             'sentiment_probas': sentiment.probas,
             'hate_probas': hatefulness.probas,
             'emotion_probas': emotion.probas
