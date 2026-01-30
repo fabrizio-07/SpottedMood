@@ -4,7 +4,7 @@ import sentiment
 import handlers
 import reporter
 from telethon import TelegramClient
-from telegram.ext import ApplicationBuilder, CommandHandler
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler
 from telegram import Bot
 from telegram.error import TelegramError
 import os
@@ -25,7 +25,6 @@ username = "SpottedMood"
 spotted_id = -1001409670397
 users_file = pathlib.Path("users.json")
 messages_file = pathlib.Path("messages.json")
-highlights_file = pathlib.Path("highlights.json")
 
 if not api_id or not api_hash or not phone_number:
     raise ValueError("API_ID, API_HASH e PHONE_NUMBER must be set in .env file.")
@@ -35,11 +34,12 @@ print("[MAIN] Starting the bot")
 client = TelegramClient(username, api_id, api_hash)
 
 app=ApplicationBuilder().token(bot_token).build()
-start_cmd, highlights_cmd, help_cmd, stop_cmd = handlers.handle_commands(users_file, highlights_file)
+start_cmd, highlights_cmd, help_cmd, stop_cmd, button_handler = handlers.handle_commands(users_file)
 app.add_handler(CommandHandler("start", start_cmd))
 app.add_handler(CommandHandler("highlights", highlights_cmd))
 app.add_handler(CommandHandler("help",help_cmd))
 app.add_handler(CommandHandler("stop", stop_cmd))
+app.add_handler(CallbackQueryHandler(button_handler))
 
 sentiment_analyzer = create_analyzer(task="sentiment", lang="it")
 hate_analyzer = create_analyzer(task="hate_speech", lang="it")
@@ -59,7 +59,8 @@ async def daily_job():
     await sentiment.sentiment_analyze(sentiment_analyzer, hate_analyzer, emotion_analyzer)
     await reporter.send_report(app.bot)
     print("[MAIN] Emptying messages.json")
-    messages_file.write_text("[]")
+    with open("messages.json", "w", encoding="utf-8") as f:
+        f.write("[]")
     await start_listening()
 
 async def main():

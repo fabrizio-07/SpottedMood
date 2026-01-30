@@ -1,78 +1,117 @@
 import json
-from telegram import Update
+import os
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
-def handle_commands(users_file,hl_file):
+def handle_commands(users_file):
 
     print("[HANDLERS] Waiting for commands...")
     
-    async def start(update:Update,context:ContextTypes.DEFAULT_TYPE):
+    def load_report_data():
+        try:
+            with open("daily_report.json", "r", encoding="utf-8") as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return None
+
+    async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        query = update.callback_query
+        await query.answer()
+
+        data = query.data
+        report = load_report_data()
+
+        if not report:
+            await query.message.reply_text("⚠️ No report data available yet.")
+            return
+
+        if data == "report_stats":
+
+            avg = report['averages']
+            msg = (
+                f"📊 *General Statistics*\n\n"
+                f"• Positivity: `{avg['pos']:.2%}`\n"
+                f"• Negativity: `{avg['neg']:.2%}`\n"
+                f"• Hate Speech: `{avg['hateful']:.2%}`\n"
+                f"• Stereotypes: `{avg['stereotype']:.2%}`\n"
+                f"-----------------------------\n"
+                f"• Joy: `{avg['joy']:.2%}`\n"
+                f"• Sadness: `{avg['sadness']:.2%}`\n"
+                f"• Anger: `{avg['anger']:.2%}`\n"
+                f"• Fear: `{avg['fear']:.2%}`"
+            )
+            await query.message.reply_text(msg, parse_mode="Markdown")
+
+        elif data.startswith("report_"):
+
+            emotion = data.split("_")[1]
+            
+            plot_file = report['plots'].get(emotion)
+            max_msg = report['max_messages'].get(emotion)
+            
+            caption = (
+                f"*{emotion.upper()} Analysis* 📉\n\n"
+                f"Here is how {emotion} fluctuated over the last 24h.\n\n"
+                f"🔥 *Most intense message:*\n"
+                f"_{max_msg['text']}_\n"
+                f"(Score: {max_msg['value']:.2%})"
+            )
+
+
+            if plot_file and os.path.exists(plot_file):
+                await query.message.reply_photo(
+                    photo=open(plot_file, 'rb'),
+                    caption=caption,
+                    parse_mode="Markdown"
+                )
+            else:
+                await query.message.reply_text(f"⚠️ Plot not found for {emotion}.\n\n{caption}", parse_mode="Markdown")
+
+    async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         print(f"[HANDLERS] {update.message.from_user.first_name} has used /start")
 
+        user = update.message.from_user
         await update.message.reply_text(
-            f"👋 *Hey {update.message.from_user.first_name}!* \n\n"
-            f"I'm *SpottedMood* — your friendly mood analyst bot! 🧠💬\n\n"
-            f"Every day at 🕙 *10:00 PM*, I’ll send you a quick report about the *sentiment*, *emotions*, and *hateful content* found in the spots and comments from *Spotted DMI*.\n\n"
-            f"Type /help to learn more about my commands.\n\n"
-            f"Stay tuned to see how the mood of the day evolves! 📊✨",
+            f"👋 *Hey {user.first_name}!* \n\n"
+            f"I'm *SpottedMood*. I analyze Spotted DMI daily.\n"
+            f"I'll send you an interactive report at 10 PM. Use /highlights to see the menu now.",
             parse_mode="Markdown"
         )
-
+        
         if users_file.exists():
             with open("users.json", "r", encoding='utf-8') as usrs:
-                try:
-                    users = json.load(usrs)
-                except Exception:
-                    users = []
-        else:
-            users = []
-
-        user_id = update.message.from_user.id
-        if not any(u["user_id"] == user_id for u in users):
-            users.append({
-                "user_id" : user_id,
-                "username" : update.message.from_user.first_name
-            })
+                try: users = json.load(usrs)
+                except: users = []
+        else: users = []
+        
+        if not any(u["user_id"] == user.id for u in users):
+            users.append({"user_id": user.id, "username": user.first_name})
             with open("users.json", "w", encoding='utf-8') as usrs:
-                usrs.write(json.dumps(users, ensure_ascii=False, indent=2))
+                usrs.write(json.dumps(users, indent=2))
 
-            print(f"[HANDLERS] New user added: {update.message.from_user.first_name}")
-
-    async def highlights(update: Update, context:ContextTypes.DEFAULT_TYPE):
-
+    async def highlights(update: Update, context: ContextTypes.DEFAULT_TYPE):
+        
         print(f"[HANDLERS] {update.message.from_user.first_name} has used /highlights")
 
-        if not hl_file.exists():
-            await update.message.reply_text("Highlights are not available yet. Please check back after the 10 PM report.")
-            return
-        
-        try:
-
-            with open(hl_file, "r", encoding="utf-8") as f:
-                raw_hl = json.load(f)
-
-                if not raw_hl:
-                    await update.message.reply_text("Highlights file is empty. Please check back later.")
-                    return
-                
-                hl = {item["emotion"]: item for item in raw_hl}
-
-        except (json.JSONDecodeError, FileNotFoundError):
-            print("[HANDLERS] Error reading or parsing highlights.json")
-            await update.message.reply_text("Sorry, I had trouble reading the highlights file.")
-            return
+        keyboard = [
+            [
+                InlineKeyboardButton("😊 Joy", callback_data="report_joy"),
+                InlineKeyboardButton("😢 Sadness", callback_data="report_sadness")
+            ],
+            [
+                InlineKeyboardButton("😠 Anger", callback_data="report_anger"),
+                InlineKeyboardButton("😱 Fear", callback_data="report_fear")
+            ],
+            [
+                InlineKeyboardButton("📊 General Stats", callback_data="report_stats")
+            ]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
         
         await update.message.reply_text(
-            f"📊 *Last Report Most Intense Messages*:\n"
-            f"• ✨ Most *positive* message: '{hl.get('most_positive', {}).get('text', 'N/A')}'\n\n"
-            f"• 💥 Most *negative* message: '{hl.get('most_negative', {}).get('text', 'N/A')}'\n\n"
-            f"• 🚫 Most *hateful* message: '{hl.get('most_hateful', {}).get('text', 'N/A')}'\n\n"
-            f"• 🧠 Most *stereotypical* message: '{hl.get('most_stereotype', {}).get('text', 'N/A')}'\n\n"
-            f"• 😄 Max *joy* message: '{hl.get('max_joy', {}).get('text', 'N/A')}'\n\n"
-            f"• 😡 Max *anger* message: '{hl.get('max_anger', {}).get('text', 'N/A')}'\n\n"
-            f"• 😭 Max *sadness* message: '{hl.get('max_sadness', {}).get('text', 'N/A')}'\n\n"
-            f"• 😨 Max *fear* message: '{hl.get('max_fear', {}).get('text', 'N/A')}'\n\n",
+            "📊 *Select a category to view analysis & plots:*",
+            reply_markup=reply_markup,
             parse_mode="Markdown"
         )
 
@@ -93,6 +132,7 @@ def handle_commands(users_file,hl_file):
         )
 
     async def stop(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
         print(f"[HANDLERS] {update.message.from_user.first_name} has used /stop")
 
         if users_file.exists():
@@ -119,4 +159,4 @@ def handle_commands(users_file,hl_file):
             parse_mode="Markdown"
         )
 
-    return start, highlights, help, stop
+    return start, highlights, help, stop, button_handler
