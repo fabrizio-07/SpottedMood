@@ -33,12 +33,12 @@ def handle_commands(users_file):
                 f"• Positivity: `{avg['pos']:.2%}`\n"
                 f"• Negativity: `{avg['neg']:.2%}`\n"
                 f"• Hate Speech: `{avg['hateful']:.2%}`\n"
-                f"• Stereotypes: `{avg['stereotype']:.2%}`\n"
-                f"-----------------------------\n"
+                f"• Stereotypes: `{avg['stereotype']:.2%}`\n\n"
                 f"• Joy: `{avg['joy']:.2%}`\n"
                 f"• Sadness: `{avg['sadness']:.2%}`\n"
                 f"• Anger: `{avg['anger']:.2%}`\n"
-                f"• Fear: `{avg['fear']:.2%}`"
+                f"• Fear: `{avg['fear']:.2%}`\n\n"
+                f"Type /highlights to switch category."
             )
             await query.message.reply_text(msg, parse_mode="Markdown")
 
@@ -61,7 +61,8 @@ def handle_commands(users_file):
                 f"*{emotion.upper()} Analysis* 📉\n\n"
                 f"Here is how {emotion} fluctuated over the last 24h.\n\n"
                 f"🔥 *Top 5 Intense Messages:*\n"
-                f"{msg_list_str}"
+                f"{msg_list_str}\n\n"
+                f"Type /highlights to switch category."
             )
 
 
