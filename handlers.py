@@ -28,10 +28,20 @@ def handle_commands(users_file):
         if data == "report_stats":
 
             avg = report['averages']
+
+            total_sentiment = avg['pos'] + avg['neg']
+            
+            if total_sentiment > 0:
+                pos_pct = avg['pos'] / total_sentiment
+                neg_pct = avg['neg'] / total_sentiment
+            else:
+                pos_pct = 0.0
+                neg_pct = 0.0
+            
             msg = (
                 f"📊 *General Statistics*\n\n"
-                f"• Positivity: `{avg['pos']:.2%}`\n"
-                f"• Negativity: `{avg['neg']:.2%}`\n"
+                f"• Positivity: `{pos_pct:.2%}`\n"
+                f"• Negativity: `{neg_pct:.2%}`\n"
                 f"• Hate Speech: `{avg['hateful']:.2%}`\n"
                 f"• Stereotypes: `{avg['stereotype']:.2%}`\n\n"
                 f"• Joy: `{avg['joy']:.2%}`\n"
