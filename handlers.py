@@ -131,7 +131,7 @@ def handle_commands(users_file):
             "🛠 *SpottedMood Bot Help*\n\n"
             "Here are the available commands:\n\n"
             "• /start – Introduce SpottedMood Bot and subscribe to the daily report about mood, emotions, stereotypical and hateful content detected in Spotted DMI.\n"
-            "• /highlights – Show the most intense messages from the latest report.\n"
+            "• /highlights – Show the most intense messages and a plot of each emotion, from the latest report.\n"
             "• /stop – Unsubscribe from daily reports.\n"
             "• /help – Display this help message.\n\n"
             "For issues or feedback, contact the bot admin: @Avaja\\_mbare\n\n"
