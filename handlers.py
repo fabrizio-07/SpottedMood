@@ -47,14 +47,21 @@ def handle_commands(users_file):
             emotion = data.split("_")[1]
             
             plot_file = report['plots'].get(emotion)
-            max_msg = report['max_messages'].get(emotion)
+            top_msgs = report['max_messages'].get(emotion, [])
+
+            msg_list_str = ""
+            for i, item in enumerate(top_msgs, 1):
+                text = item['text']
+                if len(text) > 150: 
+                    text = text[:150] + "..."
+                
+                msg_list_str += f"{i}. _{text}_ ({item['value']:.1%})\n"
             
             caption = (
                 f"*{emotion.upper()} Analysis* 📉\n\n"
                 f"Here is how {emotion} fluctuated over the last 24h.\n\n"
-                f"🔥 *Most intense message:*\n"
-                f"_{max_msg['text']}_\n"
-                f"(Score: {max_msg['value']:.2%})"
+                f"🔥 *Top 5 Intense Messages:*\n"
+                f"{msg_list_str}"
             )
 
 

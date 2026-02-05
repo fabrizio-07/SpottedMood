@@ -60,13 +60,8 @@ async def send_report(bot):
         'joy': [], 'sadness': [], 'anger': [], 'fear': [], 'times': []
     }
 
-    max_data = {
-        'joy': {'value': -1, 'text': ''},
-        'sadness': {'value': -1, 'text': ''},
-        'anger': {'value': -1, 'text': ''},
-        'fear': {'value': -1, 'text': ''},
-        'pos': {'value': -1, 'text': ''},
-        'neg': {'value': -1, 'text': ''}
+    score_lists = {
+        'joy': [], 'sadness': [], 'anger': [], 'fear': [], 'pos': [], 'neg': []
     }
 
     for msg in sentiment:
@@ -104,8 +99,7 @@ async def send_report(bot):
         ]
         
         for key, val in mappings:
-            if val > max_data[key]['value']:
-                max_data[key] = {'value': val, 'text': clean_markdown(msg['text'])}
+            score_lists[key].append({'value': val, 'text': clean_markdown(msg['text'])})
 
     count = len(sentiment)
     averages = {k: v / count for k, v in sums.items()}
@@ -115,6 +109,10 @@ async def send_report(bot):
     
     for emotion, color in colors.items():
         plot_files[emotion] = generate_plot(plot_data['times'], plot_data[emotion], emotion, color)
+
+    max_data = {}
+    for key, lst in score_lists.items():
+        max_data[key] = sorted(lst, key=lambda x: x['value'], reverse=True)[:5]
 
     report_data = {
         "date": datetime.now().isoformat(),
