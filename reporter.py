@@ -158,6 +158,6 @@ async def send_report(bot):
                 reply_markup=reply_markup,
                 parse_mode='Markdown'
             )
-            print(f"[REPORTER] Report sent to {user['username','Unknown']}")
+            print(f"[REPORTER] Report sent to {user.get('username','Unknown')}")
         except TelegramError as e:
             print(f"[REPORTER] Failed to send to {user.get('username', 'Unknown')}: {e}")
