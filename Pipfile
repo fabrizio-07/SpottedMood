@@ -9,6 +9,7 @@ pysentimiento = "*"
 python-telegram-bot = "*"
 apscheduler = "*"
 matplotlib = "*"
+google-genai = "*"
 
 [dev-packages]
 
