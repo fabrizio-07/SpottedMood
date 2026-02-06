@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from datetime import datetime
 import os
+import topic
 
 plt.switch_backend('Agg')
 
@@ -110,6 +111,8 @@ async def send_report(bot):
     for emotion, color in colors.items():
         plot_files[emotion] = generate_plot(plot_data['times'], plot_data[emotion], emotion, color)
 
+    topics = await topic.analyze_daily_topics(sentiment)
+
     max_data = {}
     for key, lst in score_lists.items():
         max_data[key] = sorted(lst, key=lambda x: x['value'], reverse=True)[:5]
@@ -118,7 +121,8 @@ async def send_report(bot):
         "date": datetime.now().isoformat(),
         "averages": averages,
         "max_messages": max_data,
-        "plots": plot_files
+        "plots": plot_files,
+        "topics": topics
     }
     
     with open("daily_report.json", "w", encoding="utf-8") as f:

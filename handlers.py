@@ -29,6 +29,8 @@ def handle_commands(users_file):
 
             avg = report['averages']
 
+            topic = report.get('topics', {}).get('general', 'N/A')
+
             total_sentiment = avg['pos'] + avg['neg']
             
             if total_sentiment > 0:
@@ -40,6 +42,7 @@ def handle_commands(users_file):
             
             msg = (
                 f"📊 *General Statistics*\n\n"
+                f"🗣 *Main Topic:* _{topic}_\n\n"
                 f"• Positivity: `{pos_pct:.2%}`\n"
                 f"• Negativity: `{neg_pct:.2%}`\n"
                 f"• Hate Speech: `{avg['hateful']:.2%}`\n"
@@ -59,6 +62,8 @@ def handle_commands(users_file):
             plot_file = report['plots'].get(emotion)
             top_msgs = report['max_messages'].get(emotion, [])
 
+            topic = report.get('topics', {}).get(emotion, 'N/A')
+
             msg_list_str = ""
             for i, item in enumerate(top_msgs, 1):
                 text = item['text']
@@ -69,6 +74,7 @@ def handle_commands(users_file):
             
             caption = (
                 f"*{emotion.upper()} Analysis* 📉\n\n"
+                f"🗣 *Trending Topic:* _{topic}_\n\n"
                 f"Here is how {emotion} fluctuated over the last 24h.\n\n"
                 f"🔥 *Top 5 Intense Messages:*\n"
                 f"{msg_list_str}\n\n"
