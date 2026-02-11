@@ -2,6 +2,7 @@ import json
 import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
+from telegram.helpers import escape_markdown
 
 def handle_commands(users_file):
 
@@ -26,78 +27,87 @@ def handle_commands(users_file):
             return
 
         if data == "report_stats":
-
-            avg = report['averages']
-
-            topic = report.get('topics', {}).get('general', 'N/A')
-
-            total_sentiment = avg['pos'] + avg['neg']
-            
-            if total_sentiment > 0:
-                pos_pct = avg['pos'] / total_sentiment
-                neg_pct = avg['neg'] / total_sentiment
-            else:
-                pos_pct = 0.0
-                neg_pct = 0.0
-            
-            msg = (
-                f"📊 *General Statistics*\n\n"
-                f"🗣 *Main Topic:* _{topic}_\n\n"
-                f"• Positivity: `{pos_pct:.2%}`\n"
-                f"• Negativity: `{neg_pct:.2%}`\n"
-                f"• Hate Speech: `{avg['hateful']:.2%}`\n"
-                f"• Stereotypes: `{avg['stereotype']:.2%}`\n\n"
-                f"• Joy: `{avg['joy']:.2%}`\n"
-                f"• Sadness: `{avg['sadness']:.2%}`\n"
-                f"• Anger: `{avg['anger']:.2%}`\n"
-                f"• Fear: `{avg['fear']:.2%}`\n\n"
-                f"Type /highlights to switch category."
-            )
-            await query.message.reply_text(msg, parse_mode="Markdown")
+            try:
+                avg = report.get('averages', {})
+                topic = report.get('topics', {}).get('general', 'N/A')
+                
+                total_sentiment = avg.get('pos', 0) + avg.get('neg', 0)
+                
+                if total_sentiment > 0:
+                    pos_pct = avg.get('pos', 0) / total_sentiment
+                    neg_pct = avg.get('neg', 0) / total_sentiment
+                else:
+                    pos_pct = 0.0
+                    neg_pct = 0.0
+                
+                msg = (
+                    f"📊 *General Statistics*\n\n"
+                    f"🗣 *Main Topic:* _{topic}_\n\n"
+                    f"• Positivity: `{pos_pct:.2%}`\n"
+                    f"• Negativity: `{neg_pct:.2%}`\n"
+                    f"• Hate Speech: `{avg.get('hateful',0):.2%}`\n"
+                    f"• Stereotypes: `{avg.get('stereotype',0):.2%}`\n\n"
+                    f"• Joy: `{avg.get('joy',0):.2%}`\n"
+                    f"• Sadness: `{avg.get('sadness',0):.2%}`\n"
+                    f"• Anger: `{avg.get('anger',0):.2%}`\n"
+                    f"• Fear: `{avg.get('fear',0):.2%}`\n\n"
+                    f"Type /highlights to switch category."
+                )
+                await query.message.reply_text(msg, parse_mode="Markdown")
+            except Exception as e:
+                print(f"[HANDLERS ERROR] Stats button: {e}")
+                await query.message.reply_text("⚠️ Error loading stats.")
 
         elif data.startswith("report_"):
-
-            emotion = data.split("_")[1]
-            
-            plot_file = report['plots'].get(emotion)
-            top_msgs = report['max_messages'].get(emotion, [])
-
-            topic = report.get('topics', {}).get(emotion, 'N/A')
-
-            msg_list_str = ""
-            for i, item in enumerate(top_msgs, 1):
-                text = item['text']
-                if len(text) > 150: 
-                    text = text[:150] + "..."
+            try:
+                emotion = data.split("_")[1]
                 
-                msg_list_str += f"{i}. _{text}_ ({item['value']:.1%})\n"
-            
-            caption = (
-                f"*{emotion.upper()} Analysis* 📉\n\n"
-                f"🗣 *Trending Topic:* _{topic}_\n\n"
-                f"Here is how {emotion} fluctuated over the last 24h.\n\n"
-                f"🔥 *Top 5 Intense Messages:*\n"
-                f"{msg_list_str}\n\n"
-                f"Type /highlights to switch category."
-            )
+                plot_file = report.get('plots', {}).get(emotion)
+                top_msgs = report.get('max_messages', {}).get(emotion, [])
+                topic = report.get('topics', {}).get(emotion, 'N/A')
 
+                msg_list_str = ""
+                for i, item in enumerate(top_msgs, 1):
+                    text = item.get('text', '')
+                    val = item.get('value', 0)
+                    msg_list_str += f"{i}. {text} ({val:.1%})\n"
+                
+                if not msg_list_str:
+                    msg_list_str = "_No intense messages found._"
 
-            if plot_file and os.path.exists(plot_file):
-                await query.message.reply_photo(
-                    photo=open(plot_file, 'rb'),
-                    caption=caption,
-                    parse_mode="Markdown"
+                caption = (
+                    f"*{emotion.upper()} Analysis* 📉\n\n"
+                    f"🗣 *Trending Topic:* _{topic}_\n\n"
+                    f"Here is how {emotion} fluctuated over the last 24h.\n\n"
+                    f"🔥 *Top 5 Intense Messages:*\n"
+                    f"{msg_list_str}\n\n"
+                    f"Type /highlights to switch category."
                 )
-            else:
-                await query.message.reply_text(f"⚠️ Plot not found for {emotion}.\n\n{caption}", parse_mode="Markdown")
+
+                if plot_file and os.path.exists(plot_file):
+                    await query.message.reply_photo(
+                        photo=open(plot_file, 'rb'),
+                        caption=caption,
+                        parse_mode="Markdown"
+                    )
+                else:
+                    await query.message.reply_text(
+                        f"⚠️ Plot not found for {emotion}.\n\n{caption}", 
+                        parse_mode="Markdown"
+                    )
+            except Exception as e:
+                print(f"[HANDLERS ERROR] Report button '{data}': {e}")
+                await query.message.reply_text("⚠️ Error loading report.")
 
     async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         print(f"[HANDLERS] {update.message.from_user.first_name} has used /start")
 
         user = update.message.from_user
+        safe_name = escape_markdown(user.first_name, version=1)
+
         await update.message.reply_text(
-            f"👋 *Hey {user.first_name}!* \n\n"
+            f"👋 *Hey {safe_name}!* \n\n"
             f"I'm *SpottedMood*. I analyze Spotted DMI daily.\n"
             f"I'll send you an interactive report at 10 PM. Use /highlights to see the menu now.",
             parse_mode="Markdown"

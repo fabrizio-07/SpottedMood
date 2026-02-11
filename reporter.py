@@ -1,5 +1,6 @@
 import json
 from telegram.error import TelegramError
+from telegram.helpers import escape_markdown
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import re
 import matplotlib.pyplot as plt
@@ -9,9 +10,6 @@ import os
 import topic
 
 plt.switch_backend('Agg')
-
-def clean_markdown(text):
-    return re.sub(r'([*_`\[\]])', r'\\\1', text)
 
 def generate_plot(timestamps, values, emotion_name, color):
 
@@ -99,8 +97,19 @@ async def send_report(bot):
             ('pos', s_probs['pos']), ('neg', s_probs['neg'])
         ]
         
+        raw_text = msg['text']
+
+        raw_text = raw_text.replace('\n', ' ')
+        
+        if len(raw_text) > 150:
+            display_text = raw_text[:150] + "..."
+        else:
+            display_text = raw_text
+            
+        safe_text = escape_markdown(display_text, version=1)
+
         for key, val in mappings:
-            score_lists[key].append({'value': val, 'text': clean_markdown(msg['text'])})
+            score_lists[key].append({'value': val, 'text': safe_text})
 
     count = len(sentiment)
     averages = {k: v / count for k, v in sums.items()}
@@ -111,7 +120,8 @@ async def send_report(bot):
     for emotion, color in colors.items():
         plot_files[emotion] = generate_plot(plot_data['times'], plot_data[emotion], emotion, color)
 
-    topics = await topic.analyze_daily_topics(sentiment)
+    raw_topics = await topic.analyze_daily_topics(sentiment)
+    topics = {k: escape_markdown(v,version=1) for k,v in raw_topics.items()}
 
     max_data = {}
     for key, lst in score_lists.items():
