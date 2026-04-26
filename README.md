@@ -4,6 +4,8 @@
 [![Gemini](https://img.shields.io/badge/Gemini-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)](#)
 [![Python](https://img.shields.io/badge/Python-3.x-blue?style=for-the-badge&logo=python&logoColor=white)](#)
 
+<img width="250" height="250" alt="SpottedMood Logo" src="https://github.com/user-attachments/assets/9ad9729f-14f3-44f7-a067-3de493789b2f" />
+
 ## 📌 Summary
 SpottedMood is an asynchronous, automated data-ingestion and Natural Language Processing (NLP) Telegram Bot, designed to extract, analyze, and report sentiment and emotions, within SpottedDMI community. It provides daily analytics (Sentiment, Hate Speech, Emotion, Stereotype, Topic) to help community managers and users monitor group health and user interactions.
 
@@ -42,6 +44,10 @@ To interact with SpottedMood, simply start a chat with the bot and use the follo
 * **/highlights** – Opens an interactive menu to view the most intense messages and graphical plots, generated using `matplotlib`, for specific emotions (Joy, Sadness, Anger, Fear) and general statistics.
 * **/stop** – Unsubscribes you from the daily automated reports.
 * **/help** – Displays the available commands and admin contact information for support.
+  
+| Emotion Plot | General Statistics |
+| :---: | :---: |
+| <img width="350" alt="plot_output" src="https://github.com/user-attachments/assets/b2720b42-2503-4919-abed-d512a0f5ddba" /> | <img width="350" alt="stats_output" src="https://github.com/user-attachments/assets/7d8c6cc2-978a-48fe-86b7-f0dedd491f8a" /> |
 
 ## 📄 License
 This project is licensed under the GNU General Public License v3.0 (GPLv3). See the [LICENSE](LICENSE) file for more details.
